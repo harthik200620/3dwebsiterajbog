@@ -1,0 +1,15 @@
+# OS junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Build and working files (raw footage, review renders, zips)
+*.zip
+raw*.mp4
+review/
