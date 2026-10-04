@@ -702,13 +702,13 @@ def main():
     for name, sig in (("stem_music.wav", music * duck[:, None]), ("stem_vo.wav", pan(vo)), ("stem_sfx.wav", sfx_bus)):
         sf.write(os.path.join(out_dir, name), sig.astype(np.float32), SR, subtype="FLOAT")
 
-    # two-pass loudnorm to -14 LUFS / -1.5 dBTP (social platforms)
-    m = subprocess.run(["ffmpeg", "-hide_banner", "-i", raw, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json",
+    # two-pass loudnorm to -14 LUFS / -2.5 dBTP (social platforms; the headroom absorbs AAC overshoot)
+    m = subprocess.run(["ffmpeg", "-hide_banner", "-i", raw, "-af", "loudnorm=I=-14:TP=-2.5:LRA=11:print_format=json",
                         "-f", "null", "-"], capture_output=True, text=True).stderr
     js = json.loads(m[m.rindex("{"):m.rindex("}") + 1])
     final = os.path.join(out_dir, "mix.wav")
     subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", raw, "-af",
-                    f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={js['input_i']}:measured_TP={js['input_tp']}:"
+                    f"loudnorm=I=-14:TP=-2.5:LRA=11:measured_I={js['input_i']}:measured_TP={js['input_tp']}:"
                     f"measured_LRA={js['input_lra']}:measured_thresh={js['input_thresh']}:offset={js['target_offset']}:linear=true",
                     "-ar", str(SR), "-c:a", "pcm_s16le", final], check=True)
     print("measured", {k: js[k] for k in ("input_i", "input_tp", "input_lra")})

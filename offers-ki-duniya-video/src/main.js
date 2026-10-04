@@ -215,9 +215,10 @@ function hook(t, pend) {
   const rc = $('#receipt'), rin = E.outC(P(t, 1.85, 2.5))
   T(rc, { c: 'x', y: lerp(1250, 0, rin), r: lerp(-8, -2.5, rin) })
   $$('.rc-l', rc).forEach((l, i) => { const k = E.outC(P(t, 2.25 + i * 0.2, 2.4 + i * 0.2)); T(l, { x: (1 - k) * -18, op: k }) })
-  const tk = E.outC(P(t, 2.92, 3.22))
-  setText($('#rcTotal'), inr(Math.round(tk * TL.bill.domino * 100) / 100, 2))
-  $('.rc-tot').style.opacity = P(t, 2.85, 2.95).toFixed(3)
+  // the total prints like every other line: a receipt doesn't count up
+  setText($('#rcTotal'), inr(TL.bill.domino, 2))
+  const tk = E.outC(P(t, 2.9, 3.05))
+  T($('.rc-tot'), { x: (1 - tk) * -18, op: tk })
 }
 
 function problem(t, pend) {

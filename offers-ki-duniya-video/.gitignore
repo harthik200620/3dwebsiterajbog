@@ -12,3 +12,4 @@ src/site/
 # linear renders; the graded JPEGs next to them are what the video uses
 food/renders/pull_exr/
 food/renders/*.exr
+out/*-master.mp4

@@ -2,7 +2,13 @@
 
 A 43-second vertical (1080 × 1920, 30 fps) ad for **offerskiduniya.com**, the same Domino pizza at a lower price with the best offer applied automatically.
 
-The final cut is `out/offers-ki-duniya-promo.mp4` (H.264 + AAC, -14 LUFS, under 30 MB). `scripts/render.mjs` writes a CRF 16 master; the committed file is a two-pass encode of it so it stays under upload limits.
+The final cut is `out/offers-ki-duniya-promo.mp4`: H.264 + AAC, 25.6 MB, -14.6 LUFS, -2 dBTP. `scripts/render.mjs` writes a CRF 16 master. The committed file is a two-pass 4.8 Mbps encode of that master (SSIM 0.993), which keeps it under upload limits:
+
+```bash
+node scripts/render.mjs --parts 3 --out out/offers-ki-duniya-promo-master.mp4
+for p in 1 2; do ffmpeg -y -i out/offers-ki-duniya-promo-master.mp4 -c:v libx264 -preset slow -tune film -b:v 4800k -maxrate 9000k -bufsize 12000k \
+  -pix_fmt yuv420p -profile:v high -level 4.2 -pass $p -c:a aac -b:a 192k -movflags +faststart out/offers-ki-duniya-promo.mp4; done
+```
 
 Version 2 changes three things:
 
