@@ -1,0 +1,82 @@
+{
+ "love": {
+  "dur": 1.003,
+  "sr": 24000,
+  "text": "Love pizza?"
+ },
+ "hate": {
+  "dur": 1.131,
+  "sr": 24000,
+  "text": "But hate the bill?"
+ },
+ "why": {
+  "dur": 2.197,
+  "sr": 24000,
+  "text": "Why pay full price, for the same pizza?"
+ },
+ "bring": {
+  "dur": 1.152,
+  "sr": 24000,
+  "text": "We bring to you..."
+ },
+ "brand": {
+  "dur": 1.301,
+  "sr": 24000,
+  "text": "ˈɔfɚz kˈi dˈʊnɪjɑ!"
+ },
+ "menu": {
+  "dur": 1.451,
+  "sr": 24000,
+  "text": "The same Domino menu."
+ },
+ "add": {
+  "dur": 1.195,
+  "sr": 24000,
+  "text": "Just add to cart..."
+ },
+ "drop": {
+  "dur": 2.027,
+  "sr": 24000,
+  "text": "and watch the price drop. Live!"
+ },
+ "auto": {
+  "dur": 3.221,
+  "sr": 24000,
+  "text": "The best offer applies automatically. No coupon code."
+ },
+ "save": {
+  "dur": 3.584,
+  "sr": 24000,
+  "text": "Save up to two hundred and ninety-five rupees, with free delivery!"
+ },
+ "bigger": {
+  "dur": 2.112,
+  "sr": 24000,
+  "text": "The bigger the order, the bigger the saving."
+ },
+ "same": {
+  "dur": 1.067,
+  "sr": 24000,
+  "text": "Same pizza."
+ },
+ "deliv": {
+  "dur": 1.387,
+  "sr": 24000,
+  "text": "Delivered by Domino."
+ },
+ "lower": {
+  "dur": 1.152,
+  "sr": 24000,
+  "text": "At a lower price."
+ },
+ "cta": {
+  "dur": 2.197,
+  "sr": 24000,
+  "text": "ˈɔːɹdɚ nˈaʊ ˈɔn ˈɔfɚz kˈi dˈʊnɪjɑ dˈɑt kˈɑm!"
+ },
+ "tag": {
+  "dur": 2.944,
+  "sr": 24000,
+  "text": "ˈɔfɚz kˈi dˈʊnɪjɑ. dˈɑːmɪnˌoʊ pˈiːtsə, fɔːɹ lˈɛs."
+ }
+}

@@ -1,0 +1,7 @@
+node_modules/
+audio/models
+audio/build/
+out/.work/
+out/.test/
+src/art-test.html
+out/*-whatsapp.mp4
