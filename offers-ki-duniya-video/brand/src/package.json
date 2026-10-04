@@ -1,0 +1,10 @@
+{
+ "name": "offers-ki-duniya-logo",
+ "private": true,
+ "type": "module",
+ "description": "Builds the Offers Ki Duniya logo files in ../ (see build.sh)",
+ "dependencies": {
+  "@fontsource-variable/baloo-2": "^5.3.0",
+  "@fontsource/shrikhand": "^5.3.0"
+ }
+}

@@ -12,7 +12,8 @@ const TYPES = {
 export function serve(root, port = 0) {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
-      const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname))
+      let path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname))
+      if (path.endsWith('/')) path += 'index.html'
       const file = join(root, path)
       if (!file.startsWith(root)) { res.writeHead(403).end(); return }
       try {

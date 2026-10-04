@@ -21,6 +21,7 @@ LINES = [
     ("why",      "Why pay full price, for the same pizza?", None, 1.05),
     ("bring",    "We bring to you...", None, 0.95),
     ("brand",    None, BRAND + "!", 0.9),
+    ("loc",      "Set your location, anywhere in India.", None, 1.12),
     ("menu",     "The same Domino menu.", None, 1.05),
     ("add",      "Just add to cart...", None, 1.05),
     ("drop",     "and watch the price drop. Live!", None, 1.05),
@@ -35,10 +36,15 @@ LINES = [
 ]
 
 def main():
+    """python3 audio/vo.py [id ...]: all lines, or only the ids given (merged into lines.json)."""
+    only = set(sys.argv[1:])
     k = Kokoro(os.path.join(MODELS, "kokoro-v1.0.onnx"), os.path.join(MODELS, "voices-v1.0.bin"))
     os.makedirs(OUT, exist_ok=True)
-    meta = {}
+    meta_path = os.path.join(OUT, "lines.json")
+    meta = json.load(open(meta_path)) if only and os.path.exists(meta_path) else {}
     for lid, text, ph, speed in LINES:
+        if only and lid not in only:
+            continue
         if lid == "cta":
             ph = k.tokenizer.phonemize("Order now on", "en-us") + " " + BRAND + " dˈɑt kˈɑm!"
         if lid == "tag":
@@ -51,7 +57,9 @@ def main():
         sf.write(os.path.join(OUT, f"{lid}.wav"), audio, sr)
         meta[lid] = {"dur": round(len(audio) / sr, 3), "sr": sr, "text": text or ph}
         print(f"{lid:6s} {meta[lid]['dur']:.2f}s  {text or ph}")
-    with open(os.path.join(OUT, "lines.json"), "w") as f:
+    order = [l[0] for l in LINES]
+    meta = {k2: meta[k2] for k2 in sorted(meta, key=lambda x: order.index(x) if x in order else 99)}
+    with open(meta_path, "w") as f:
         json.dump(meta, f, indent=1, ensure_ascii=False)
 
 if __name__ == "__main__":
