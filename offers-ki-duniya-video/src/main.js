@@ -185,7 +185,7 @@ async function init() {
       <div class="lr-off"><div class="v">${inr(t.off + D)} <small>OFF</small></div><div class="s">${inr(t.off)} off + <b>free delivery</b></div></div></div>`).join('')
   $('#caps').innerHTML = CAPS.map(([, , t, s]) => `<div class="cap"><div class="t">${t}</div><div class="s">${s}</div></div>`).join('')
 
-  const still = [['#hero', 'hero.jpg'], ['#siteBgImg', 'hero.jpg'], ['#promImg', 'hero.jpg'], ['#topImg', 'top.jpg'], ['#ctaImg', 'top.jpg']]
+  const still = [['#hero', 'hero.jpg'], ['#siteBgImg', 'hero.jpg'], ['#topImg', 'top.jpg'], ['#ctaImg', 'top.jpg']]
   await Promise.all(still.map(([id, f]) => setImg($(id), `${FOOD}/${f}`)))
   await Promise.all($$('img').filter((im) => !im.__src).map((im) => (im.complete ? im.decode().catch(() => {}) : new Promise((r) => { im.onload = im.onerror = r }))))
   await document.fonts.ready
@@ -317,15 +317,19 @@ function ladder(t) {
   T($('#ribbon'), { c: 'x', y: (1 - rb) * 40, op: rb })
 }
 
-function promise(t) {
+function promise(t, pend) {
   const on = t >= 31.78 && t < 36.3
   const sc = $('#sPromise')
   scene(sc, on)
   if (!on) return
   sc.style.opacity = E.outC(P(t, 31.78, 32.05)).toFixed(3)
-  const push = P(t, 31.78, 36.3)
-  const hp = hand(t)
-  T($('#promImg'), { s: lerp(1.3, 1.4, E.outQ(push)), x: lerp(30, -30, push) + hp.x, y: 60 + hp.y })
+  // the end of the pull in slow motion: frames 40-59 over four seconds, each blended into the next
+  const pf = lerp(40, PULL_LAST, E.outQ(P(t, 31.78, 36.0)))
+  const f0 = Math.floor(pf), f1 = Math.min(PULL_LAST, f0 + 1)
+  pend.push(setImg($('#promA'), pullSrc(f0)), setImg($('#promB'), pullSrc(f1)))
+  $('#promB').style.opacity = (pf - f0).toFixed(3)
+  const push = E.outQ(P(t, 31.78, 36.3)), hp = hand(t)
+  for (const id of ['#promA', '#promB']) T($(id), { s: lerp(1.03, 1.08, push), x: hp.x, y: 70 + hp.y })
   for (const [id, t0] of [['#pl1', 32.1], ['#pl2', 33.4], ['#pl3', 34.9]]) {
     const k = E.outC(P(t, t0, t0 + 0.42))
     T($(id), { x: (1 - k) * -40, op: k })
@@ -357,12 +361,12 @@ function cta(t) {
 /* ------------------------------------------------------------------- seek */
 window.seek = async function seek(t) {
   const pend = []
-  hook(t, pend); problem(t, pend); reveal(t); site(t, pend); ladder(t); promise(t); cta(t)
+  hook(t, pend); problem(t, pend); reveal(t); site(t, pend); ladder(t); promise(t, pend); cta(t)
 
   steamCtx.clearRect(0, 0, 1080, 1920)
   steam(t, [140, 1180, 940, 1420, 520], 0.24 * (1 - P(t, 1.7, 2.3)))                 // off the pie, into the dark
   steam(t, [200, 1000, 880, 1200, 560], 0.3 * P(t, 3.3, 3.5) * (1 - P(t, 5.7, 6.2)))   // the whole pizza
-  steam(t, [160, 1080, 920, 1300, 560], 0.3 * P(t, 31.9, 32.3) * (1 - P(t, 35.95, 36.2)))
+  steam(t, [120, 1250, 960, 1450, 520], 0.26 * P(t, 31.9, 32.3) * (1 - P(t, 35.95, 36.2)))
   steam(t, [260, 1430, 820, 1560, 300], 0.13 * P(t, 36.6, 37.4))
   grain(t)
   const cream = (t >= 8.1 && t < 9.75) || t >= 36.2

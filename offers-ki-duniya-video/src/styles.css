@@ -122,9 +122,10 @@ svg { display: block; }
 
 /* ------------------------------------------------------------- promise */
 #promWrap img { transform-origin: 50% 70%; }
+#promB { opacity: 0; }
 .shade.prom { background: linear-gradient(180deg, rgba(8, 5, 3, 0.86) 0%, rgba(8, 5, 3, 0.6) 30%, rgba(8, 5, 3, 0) 52%); }
-#pls { position: absolute; left: 84px; right: 60px; top: 170px; }
-.pl { font-weight: 800; font-size: 96px; line-height: 1.02; letter-spacing: -0.035em; color: #fff; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.5); margin-bottom: 26px; }
+#pls { position: absolute; left: 84px; right: 60px; top: 132px; }
+.pl { font-weight: 800; font-size: 86px; line-height: 1.02; letter-spacing: -0.035em; color: #fff; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.5); margin-bottom: 22px; }
 .pl b { font-family: var(--serif); font-style: italic; font-weight: 800; color: var(--gold-2); letter-spacing: -0.02em; }
 .pl u { text-decoration: none; background: linear-gradient(var(--gold-2), var(--gold-2)) 0 94% / var(--u, 0%) 14px no-repeat; }
 

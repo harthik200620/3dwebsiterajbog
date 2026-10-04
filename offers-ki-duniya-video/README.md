@@ -21,7 +21,7 @@ Everything else is still generated here. The voice is offline neural TTS. The mu
 | 6.0–10.0 | Reveal | "We bring to you… Offers Ki Duniya!" | The new logo on cream, with "Domino pizza, for less." and offerskiduniya.com |
 | 10.0–24.0 | The real website | "Set your location, anywhere in India. The same Domino menu. Just add to cart… and watch the price drop. Live! The best offer applies automatically. No coupon code." | The phone recording, with captions and push-ins on ₹492.60 (saving ₹195), YOU SAVE ₹195, "Top offer unlocked", YOU SAVE ₹295 and the bill |
 | 24.0–32.0 | Offer ladder | "Save up to ₹295, with free delivery! The bigger the order, the bigger the saving." | UP TO ₹295 OFF and the five tiers over the pizza turning slowly |
-| 32.0–36.0 | Promise | "Same pizza. Delivered by Domino. At a lower price." | Three lines over the pizza |
+| 32.0–36.0 | Promise | "Same pizza. Delivered by Domino. At a lower price." | Three lines over the end of the cheese pull in slow motion |
 | 36.0–43.0 | Call to action | "Order now on offerskiduniya.com! Offers Ki Duniya. Domino pizza, for less." | Logo, URL, ORDER NOW, "Up to ₹295 off · Free delivery · Order on WhatsApp" |
 
 The ladder uses the tiers the live site applies (`Me` in its bundle). They are not the ₹399 / ₹499 / ₹999 thresholds from the first brief:
