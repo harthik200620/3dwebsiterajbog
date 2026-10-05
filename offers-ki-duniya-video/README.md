@@ -66,7 +66,7 @@ python3 audio/mix.py                         # music + SFX + VO mix -> audio/bui
 node scripts/render.mjs --parts 3            # frames -> H.264 + AAC -> out/offers-ki-duniya-promo.mp4
 ```
 
-- **Voiceover.** The WAVs are committed, so you only need the model to change a line. The voice is Kokoro v1.0 (`kokoro-v1.0.onnx` and `voices-v1.0.bin` from the `thewh1teagle/kokoro-onnx` release `model-files-v1.0`) in `audio/models/`, voice `af_heart`. `python3 audio/vo.py loc` regenerates one line. Run it from its own virtualenv (`pip install kokoro-onnx soundfile`), because kokoro-onnx needs numpy 2 and bpy pins numpy 1.26. "Offers Ki Duniya" is spoken from hand-written phonemes (`ˈɔfɚz kˈi dˈʊnɪjɑ`).
+- **Voiceover.** `audio/vo.py` generates every line with Sarvam AI's text-to-speech (model `bulbul:v3`, voice `shubh`, Indian English). The WAVs are committed, so you only need it to change a line. It needs network access to `api.sarvam.ai` and your key in the `SARVAM_API_KEY` environment variable; the key never goes in the repo. `SARVAM_API_KEY=… python3 audio/vo.py loc` regenerates one line, and `--dry` prints each line's text and time slot without calling the API. A take that runs past the next line's cue is requested again at a faster pace, up to 1.4×.
 - **Food shots.** `food/pizza_scene.py` builds the pizza and renders `hero` and `top` shots. `food/cheese_pull.py` renders the pull, and `food/grade.py` applies one food grade to every linear EXR (filmic shoulder, warm balance, saturation). The HDRIs in `food/hdri/` are from Poly Haven (CC0).
 - **The website segment** is edited in `timeline.json`: `site_edl` lists the source seconds and output duration of each segment, and `taps` lists where the finger went. The phone camera moves are `CAMS` in `src/main.js`.
 - **Review stills.** `node scripts/frames.mjs <dir> 1.0 12.5 …` writes full-size stills; `src/index.html?t=12.5` shows a single frame in a browser.
@@ -82,7 +82,7 @@ src/main.js          seek(t): every frame is a pure function of time
 site/recording.mp4   the phone recording of offerskiduniya.com
 food/                procedural pizza + cheese pull (Blender Cycles), grade, renders/ (graded JPEGs)
 brand/               the logo: SVG, PNG, app icons, favicons, and the source that builds them
-audio/vo.py          voiceover (Kokoro TTS)
+audio/vo.py          voiceover (Sarvam bulbul:v3, voice shubh)
 audio/mix.py         music, sound design, ducking, limiting, loudness
 scripts/render.mjs   frame-accurate render + mux
 ```
