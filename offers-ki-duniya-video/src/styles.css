@@ -65,7 +65,7 @@ svg { display: block; }
 .name { position: absolute; left: 0; right: 0; top: 520px; text-align: center; font-family: var(--display); font-size: 300px; line-height: 0.88; letter-spacing: 0.01em; }
 .name span { display: block; }
 .name span + span { font-size: 0.62em; letter-spacing: 0.06em; margin-top: 0.08em; }
-#nameFill { color: transparent; -webkit-background-clip: text; background-clip: text; background-size: cover; background-position: 50% 45%; }
+#nameFill { color: transparent; -webkit-background-clip: text; background-clip: text; background-size: cover; background-position: 50% 72%; }
 #nameGold { color: transparent; background: linear-gradient(180deg, #fff5d4 0%, #f8d579 40%, #e3a73d 72%, #f7cf72 100%); -webkit-background-clip: text; background-clip: text; opacity: 0; filter: drop-shadow(0 12px 40px rgba(227, 167, 61, 0.35)); }
 #nameSheen { color: transparent; background: linear-gradient(105deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0) 60%) no-repeat; background-size: 300% 100%; background-position: 140% 0; -webkit-background-clip: text; background-clip: text; mix-blend-mode: screen; }
 #tag { position: absolute; left: 0; right: 0; top: 1150px; text-align: center; font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 66px; color: var(--cream-0); }
@@ -137,11 +137,15 @@ svg { display: block; }
 #ribbon { position: absolute; left: 50%; top: 1774px; padding: 22px 42px; border-radius: 48px; background: linear-gradient(180deg, #f6d48a, #e3a73d); color: var(--esp-2); font-size: 35px; font-weight: 800; white-space: nowrap; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); }
 
 /* ------------------------------------------------------------- promise */
-#promWrap img, #promFg img { transform-origin: 50% 70%; }
-#promB, #promFgB { opacity: 0; }
+#promWrap img { transform-origin: 50% 70%; }
+#promB { opacity: 0; }
 .shade.prom { background: linear-gradient(180deg, rgba(8, 5, 3, 0.7) 0%, rgba(8, 5, 3, 0.35) 30%, rgba(8, 5, 3, 0) 52%); }
-#pls { position: absolute; left: 70px; right: 50px; top: 150px; }
-.pl { font-family: var(--display); font-size: 150px; line-height: 0.95; letter-spacing: 0.005em; color: #fff; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.45); margin-bottom: 18px; }
+/* a justified stack above the lifted slice: each line is sized to the same 940px width, so no word goes behind it */
+#pls { position: absolute; left: 70px; right: 70px; top: 92px; }
+.pl { font-family: var(--display); line-height: 0.95; letter-spacing: 0.005em; white-space: nowrap; color: #fff; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.45); margin-bottom: 10px; }
+#pl1 { font-size: 203px; }
+#pl2 { font-size: 103px; }
+#pl3 { font-size: 136px; }
 .pl b { font-weight: 400; color: var(--gold-2); }
 .pl u { text-decoration: none; background: linear-gradient(var(--gold-2), var(--gold-2)) 0 96% / var(--u, 0%) 16px no-repeat; }
 

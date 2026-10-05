@@ -448,15 +448,13 @@ function promise(t, pend) {
   scene(sc, on)
   if (!on) return
   sc.style.opacity = E.outC(P(t, 31.78, 32.05)).toFixed(3)
-  // the end of the pull in slow motion, each frame blended into the next; the type sits behind the slice
+  // the end of the pull in slow motion, each frame blended into the next; the type sits above the slice
   const pf = lerp(40, PULL_LAST, E.outQ(P(t, 31.78, 36.0)))
   const f0 = Math.floor(pf), f1 = Math.min(PULL_LAST, f0 + 1), a = (pf - f0).toFixed(3)
-  pend.push(setImg($('#promA'), pullSrc(f0)), setImg($('#promB'), pullSrc(f1)), setImg($('#promFgA'), pullSrc(f0)), setImg($('#promFgB'), pullSrc(f1)),
-    setMask($('#promFgA'), matteSrc(f0)), setMask($('#promFgB'), matteSrc(f1)))
+  pend.push(setImg($('#promA'), pullSrc(f0)), setImg($('#promB'), pullSrc(f1)))
   $('#promB').style.opacity = a
-  $('#promFgB').style.opacity = a
   const push = E.outQ(P(t, 31.78, 36.3)), hp = hand(t)
-  for (const id of ['#promA', '#promB', '#promFgA', '#promFgB']) T($(id), { s: lerp(1.03, 1.08, push), x: hp.x, y: 70 + hp.y })
+  for (const id of ['#promA', '#promB']) T($(id), { s: lerp(1.03, 1.08, push), x: hp.x, y: 70 + hp.y })
   for (const [id, t0] of [['#pl1', 32.1], ['#pl2', 33.4], ['#pl3', 35.0]]) {
     const k = E.outQuint(P(t, t0, t0 + 0.45))
     T($(id), { x: (1 - k) * -90, op: P(t, t0, t0 + 0.12), blur: (1 - k) * 8 })

@@ -234,6 +234,10 @@ def main():
     first, last = int(kw.get('first', 0)), int(kw.get('last', frames - 1))
     todo = [int(v) for v in kw['only'].split(',')] if 'only' in kw else range(first, last + 1)
     want_matte = kw.get('matte', '1') == '1'
+    # the focus racks from the pie to the lifting slice over these frames, while the lens stops down to fstop
+    rack0, rack1 = int(kw.get('rack0', 16)), int(kw.get('rack1', 36))
+    fstop_end = float(kw.get('fstop', 6.0))
+    dry = kw.get('dry', '0') == '1'           # print the focus and the expected blur, render nothing
     os.makedirs(out, exist_ok=True)
 
     sc = P.reset()
@@ -275,6 +279,7 @@ def main():
             soft.append((ob, co.reshape(-1, 3).copy()))
         else:
             rigid.append((ob, ob.matrix_basis.copy()))
+    cheese_ob, cheese_co = next((ob, co) for ob, co in soft if ob.name.startswith('cheese_'))
 
     # strands: (pie point, slice point, radius, snap length, flat?) in rest coordinates
     rng = random.Random(11)
@@ -342,7 +347,6 @@ def main():
             cam.data.sensor_width = 36
         cam.location = loc
         cam.rotation_euler = (target - Vector(loc)).to_track_quat('-Z', 'Y').to_euler()
-        cam.data.dof.focus_distance = (Vector((0.0, 0.1 + 0.06 * u, 0.3 + 0.18 * u)) - Vector(loc)).length
 
         pivot.location = p0 + out_dir * (0.1 * u) + Vector((0, 0, 0.9 * u))
         pivot.rotation_mode = 'AXIS_ANGLE'
@@ -355,6 +359,26 @@ def main():
             ob.matrix_basis = bend.frame(m0.to_translation()) @ m0
         bpy.context.view_layer.update()
         M = pivot.matrix_world @ Matrix.Translation(-p0)
+
+        # focus: rack from the pie to the slice as it lifts. On the slice, focus where the blur of its near
+        # and far parts (10th and 90th percentile depth of its cheese) is equal, i.e. their mean in 1/depth
+        view = np.array((target - Vector(loc)).normalized())
+        Mw = np.array(cheese_ob.matrix_world)
+        depth = (bend.points(cheese_co) @ Mw[:3, :3].T + Mw[:3, 3] - np.array(loc)) @ view
+        lo, hi = np.percentile(depth, [10, 90])
+        d_pie = (Vector((0.0, 0.1 + 0.06 * u, 0.3 + 0.18 * u)) - Vector(loc)).length
+        d_slice = float(2 / (1 / lo + 1 / hi))
+        k = min(1.0, max(0.0, (f - rack0) / max(1, rack1 - rack0)))
+        k = k * k * (3 - 2 * k)
+        fd, fn = d_pie + (d_slice - d_pie) * k, 5.0 + (fstop_end - 5.0) * k
+        cam.data.dof.focus_distance = fd
+        cam.data.dof.aperture_fstop = fn * P.METRES_PER_UNIT
+        if dry:
+            # blur diameter in pixels: aperture x |1/d - 1/focus| x pixels per radian
+            blur = lambda d: cam.data.lens * 1e-3 / (fn * P.METRES_PER_UNIT) * abs(1 / d - 1 / fd) * W * cam.data.lens / 36
+            print(f'frame {f:2d}: pie {d_pie:.3f} slice {d_slice:.3f} [{lo:.3f} {hi:.3f}] f/{fn:.1f} focus {fd:.3f}'
+                  f'  blur px: slice p10 {blur(lo):4.1f} mid {blur(d_slice):4.1f} p90 {blur(hi):4.1f}  pie {blur(d_pie):4.1f}', flush=True)
+            continue
 
         for (a, b, r0, snap, flat), ob, (ph, fq, lat) in zip(anchors, strands, wiggle):
             B = M @ Vector(bend.points(np.array([list(b)]))[0])
