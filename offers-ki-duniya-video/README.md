@@ -2,12 +2,19 @@
 
 A 43-second vertical (1080 × 1920, 30 fps) ad for **offerskiduniya.com**, the same Domino's pizza at a lower price with the best offer applied automatically.
 
-The final cut is `out/offers-ki-duniya-promo.mp4`: H.264 + AAC, 25.6 MB, -14.5 LUFS, -1.9 dBTP. `scripts/render.mjs` writes a CRF 16 master. The committed file is a two-pass 4.8 Mbps encode of that master (SSIM 0.992), which keeps it under upload limits:
+The final cut is `out/offers-ki-duniya-promo.mp4`: H.264 + AAC, 25.7 MB, -14.6 LUFS, -2.1 dBTP. `scripts/render.mjs` writes a CRF 16 master. The committed file is a two-pass 4.8 Mbps encode of that master (SSIM 0.992), which keeps it under upload limits:
 
 ```bash
 node scripts/render.mjs --parts 3 --out out/offers-ki-duniya-promo-master.mp4
 for p in 1 2; do ffmpeg -y -i out/offers-ki-duniya-promo-master.mp4 -c:v libx264 -preset slow -tune film -b:v 4800k -maxrate 9000k -bufsize 12000k \
   -pix_fmt yuv420p -profile:v high -level 4.2 -pass $p -c:a aac -b:a 192k -movflags +faststart out/offers-ki-duniya-promo.mp4; done
+```
+
+To change only the voice or the mix, put the new `audio/build/mix.wav` on the existing video stream instead of re-rendering. The picture stays bit for bit the same:
+
+```bash
+ffmpeg -i out/offers-ki-duniya-promo.mp4 -i audio/build/mix.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -ar 48000 \
+  -shortest -movflags +faststart out/new.mp4 && mv out/new.mp4 out/offers-ki-duniya-promo.mp4
 ```
 
 What's in it:
@@ -20,7 +27,7 @@ What's in it:
 - **The opening cheese pull** is a 60-frame animation. The slice is lifted by its crust and flops under its own weight, more at the tip. Its strands are a mix of thick ropes, thin threads and flat ribbons: they thin as they stretch, sag under their weight, and some snap into hanging tails. As the slice rises, the focus racks from the pie onto it, the way a focus puller would follow it, so the slice stays sharp while the pie falls into soft focus. Every frame also renders an alpha matte of the slice, so the type can sit behind it ("LOVE PIZZA?"). The grade adds the warm bloom a real lens throws around bright highlights.
 - **The website is the real site.** The 10–24 s segment is the phone recording of offerskiduniya.com (`site/recording.mp4`), cut to 14 seconds. It plays in a phone that swings in 3D over drifting bokeh. The numbers lift off the screen as floating cards while the phone dims behind them: ₹492.60 (saving ₹195), YOU SAVE ₹195, "Top offer unlocked", YOU SAVE ₹295, and To Pay ₹1,282.05 → ₹1,032.05. Taps are marked where the finger went, and the screen-record timer is covered by a clean status bar.
 - **Type and edit.** Headlines are set in Anton. The name "OFFERS KI DUNIYA" is set as plain type, filled with the cheese pull before it turns gold; there is no logo in the video. Light leaks wash across the big cuts, the picture punches in on the hits, and the cuts land with a short zoom blur.
-- **Sound.** The voice is offline neural TTS. The music is synthesised: a 120 BPM groove with 808 sub-bass, layered claps and snares, hi-hat rolls into each cut, and a half-time trap feel under "Same pizza…". The sound effects are real-world ones: cheese sizzle, a receipt printing and phone taps.
+- **Sound.** The voice is Sarvam AI's Shubh (`bulbul:v3`), reading the script in Indian English. Each line was checked by transcribing it back with Sarvam's speech-to-text. The music is synthesised: a 120 BPM groove with 808 sub-bass, layered claps and snares, hi-hat rolls into each cut, and a half-time trap feel under "Same pizza…". The sound effects are real-world ones: cheese sizzle, a receipt printing and phone taps.
 
 There is no stock footage, no sample library and no licensed track. The logo files from round two are still in `brand/` but are not used in the video.
 
@@ -53,6 +60,8 @@ The ladder uses the tiers the live site applies (`Me` in its bundle). They are n
 - **Prices are per kitchen.** The site prices the menu at the Domino kitchen nearest the address, so the numbers in the recording are IIT Kharagpur's (checked 22 Sept on the site). The video says so on screen ("Menu & prices from your nearest Domino's kitchen") and never claims the same price everywhere.
 - **The pizza is a render.** It is styled after a Veg Extravaganza but carries no Domino's branding, box or trade dress. Inside the recording, the menu photos are the ones your site loads from images.dominos.co.in, so they are Domino's own photographs.
 - **"Domino's" is used on screen and in the voice, at your request.** Your site's own `brand.js` deliberately writes "Domino" and never shows their logo, presumably to keep clear of the trademark. Naming them is generally fine when it describes what you deliver, but an ad does put the name in front of more eyes. If you plan to run paid ads, check with someone who knows Indian trademark law. Changing it back is a text edit in `src/index.html` and `src/main.js` plus three VO lines (`menu`, `deliv`, `tag` in `audio/vo.py`).
+
+- **The voice is generated by Sarvam's API under your account.** Check Sarvam's terms for commercial use of generated speech before you run this as a paid ad.
 
 ## Rebuild
 
