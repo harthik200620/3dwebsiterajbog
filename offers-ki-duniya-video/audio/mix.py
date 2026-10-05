@@ -4,7 +4,8 @@ Reads ../timeline.json (scene times, VO cues, SFX cues) and audio/vo/*.wav,
 writes audio/build/mix.wav (48 kHz stereo, -14 LUFS after ffmpeg loudnorm).
 
 The music is a 120 BPM groove in F major so every cut in the picture lands on
-a beat: bars are 2.0 s, beats 0.5 s. Sections follow the edit:
+a beat: bars are 2.0 s, beats 0.5 s. The sound design stays close to real life:
+cheese sizzle, a receipt printing, phone taps; no cartoon slams. Sections follow the edit:
   0.0-1.6   bright intro, tape-stopped on "But hate the bill?"
   1.6-6.0   D minor tension (heartbeat, ticking clock)
   6.0-8.0   riser into a gap, logo slam on the 8.0 downbeat
@@ -245,6 +246,36 @@ def env_bell(t, a, b):
 
 def sfx(kind):
     """Returns (stereo signal, gain, send-to-reverb)."""
+    if kind == "sizzle":
+        # hot cheese and oil: a soft high hiss that breathes, with sparse crackles on top
+        d = 3.4
+        t = tt(d)
+        r = np.random.default_rng(31)
+        breathe = lp(np.abs(noise(len(t))), 5)
+        breathe = 0.55 + 0.45 * breathe / (breathe.max() + 1e-9)
+        hiss = bp(noise(len(t)), 3500, 11000) * 0.22 * breathe
+        out = np.zeros((len(t), 2))
+        for ch in range(2):
+            ts = np.cumsum(r.exponential(1 / 48, 400))
+            for ti in ts[ts < d - 0.02]:
+                L = int(SR * r.uniform(0.0015, 0.007))
+                burst = hp(noise(L), 1800) * np.exp(-np.arange(L) / (L / 4)) * r.uniform(0.15, 1.0) ** 2
+                i0 = int(ti * SR)
+                out[i0:i0 + L, ch] += burst[: len(t) - i0]
+        env = np.minimum(1, t / 0.12) * np.minimum(1, (d - t) / 0.9)
+        out = (out * 0.8 + hiss[:, None]) * env[:, None]
+        return out / np.abs(out).max(), 0.3, 0.08
+    if kind == "paper":
+        # a receipt sliding in: band-limited noise with a fast, uneven flutter
+        t = tt(0.42)
+        flutter = 0.5 + 0.5 * np.abs(np.sin(2 * np.pi * (34 + 12 * np.sin(2 * np.pi * 3 * t)) * t))
+        x = bp(noise(len(t)), 900, 6500) * flutter * env_bell(t, 0.05, 0.14)
+        return pan(x, 0.1), 0.38, 0.05
+    if kind == "pen":
+        # a marker struck through "full price"
+        t = tt(0.3)
+        x = sweep_bp(noise(len(t)), 1800, 4200, 2.5, blocks=24) * env_bell(t, 0.03, 0.12)
+        return pan(x, -0.15), 0.42, 0.05
     if kind == "swell":
         t = tt(0.32)
         x = sweep_bp(noise(len(t)), 1500, 9000, 1.5) * (t / 0.32) ** 2.5
@@ -671,13 +702,13 @@ def main():
     for name, sig in (("stem_music.wav", music * duck[:, None]), ("stem_vo.wav", pan(vo)), ("stem_sfx.wav", sfx_bus)):
         sf.write(os.path.join(out_dir, name), sig.astype(np.float32), SR, subtype="FLOAT")
 
-    # two-pass loudnorm to -14 LUFS / -1.5 dBTP (social platforms)
-    m = subprocess.run(["ffmpeg", "-hide_banner", "-i", raw, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json",
+    # two-pass loudnorm to -14 LUFS / -2.5 dBTP (social platforms; the headroom absorbs AAC overshoot)
+    m = subprocess.run(["ffmpeg", "-hide_banner", "-i", raw, "-af", "loudnorm=I=-14:TP=-2.5:LRA=11:print_format=json",
                         "-f", "null", "-"], capture_output=True, text=True).stderr
     js = json.loads(m[m.rindex("{"):m.rindex("}") + 1])
     final = os.path.join(out_dir, "mix.wav")
     subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", raw, "-af",
-                    f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={js['input_i']}:measured_TP={js['input_tp']}:"
+                    f"loudnorm=I=-14:TP=-2.5:LRA=11:measured_I={js['input_i']}:measured_TP={js['input_tp']}:"
                     f"measured_LRA={js['input_lra']}:measured_thresh={js['input_thresh']}:offset={js['target_offset']}:linear=true",
                     "-ar", str(SR), "-c:a", "pcm_s16le", final], check=True)
     print("measured", {k: js[k] for k in ("input_i", "input_tp", "input_lra")})
