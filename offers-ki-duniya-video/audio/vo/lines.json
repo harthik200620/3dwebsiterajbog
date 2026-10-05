@@ -1,87 +1,138 @@
 {
  "love": {
-  "dur": 1.003,
+  "dur": 0.75,
+  "slot": 1.22,
+  "pace": 1.0,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "Love pizza?"
  },
  "hate": {
-  "dur": 1.131,
+  "dur": 0.868,
+  "slot": 1.62,
+  "pace": 1.0,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "But hate the bill?"
  },
  "why": {
-  "dur": 2.197,
+  "dur": 1.949,
+  "slot": 3.17,
+  "pace": 1.05,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "Why pay full price, for the same pizza?"
  },
  "bring": {
-  "dur": 1.152,
+  "dur": 0.775,
+  "slot": 1.49,
+  "pace": 0.95,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "We bring to you..."
  },
  "brand": {
-  "dur": 1.301,
+  "dur": 1.131,
+  "slot": 1.85,
+  "pace": 0.95,
   "sr": 24000,
-  "text": "ˈɔfɚz kˈi dˈʊnɪjɑ!"
+  "voice": "sarvam bulbul:v3 shubh en-IN",
+  "text": "Offers Ki Duniya!"
  },
  "loc": {
-  "dur": 2.091,
+  "dur": 1.841,
+  "slot": 2.07,
+  "pace": 1.1,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "Set your location, anywhere in India."
  },
  "menu": {
-  "dur": 1.557,
+  "dur": 1.28,
+  "slot": 1.62,
+  "pace": 1.05,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "The same Domino's menu."
  },
  "add": {
-  "dur": 1.195,
+  "dur": 1.319,
+  "slot": 1.97,
+  "pace": 1.05,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "Just add to cart..."
  },
  "drop": {
-  "dur": 2.027,
+  "dur": 1.962,
+  "slot": 3.57,
+  "pace": 1.05,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "and watch the price drop. Live!"
  },
  "auto": {
-  "dur": 3.221,
+  "dur": 2.627,
+  "slot": 4.62,
+  "pace": 1.1,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "The best offer applies automatically. No coupon code."
  },
  "save": {
-  "dur": 3.584,
+  "dur": 3.172,
+  "slot": 4.22,
+  "pace": 1.1,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "Save up to two hundred and ninety-five rupees, with free delivery!"
  },
  "bigger": {
-  "dur": 2.112,
+  "dur": 2.092,
+  "slot": 3.42,
+  "pace": 1.05,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "The bigger the order, the bigger the saving."
  },
  "same": {
-  "dur": 1.067,
+  "dur": 0.746,
+  "slot": 1.22,
+  "pace": 1.0,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "Same pizza."
  },
  "deliv": {
-  "dur": 1.493,
+  "dur": 1.198,
+  "slot": 1.52,
+  "pace": 1.0,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "Delivered by Domino's."
  },
  "lower": {
-  "dur": 1.152,
+  "dur": 1.015,
+  "slot": 1.32,
+  "pace": 1.0,
   "sr": 24000,
+  "voice": "sarvam bulbul:v3 shubh en-IN",
   "text": "At a lower price."
  },
  "cta": {
-  "dur": 2.197,
+  "dur": 2.533,
+  "slot": 2.82,
+  "pace": 1.0,
   "sr": 24000,
-  "text": "ˈɔːɹdɚ nˈaʊ ˈɔn ˈɔfɚz kˈi dˈʊnɪjɑ dˈɑt kˈɑm!"
+  "voice": "sarvam bulbul:v3 shubh en-IN",
+  "text": "Order now on Offers Ki Duniya dot com!"
  },
  "tag": {
-  "dur": 3.051,
+  "dur": 3.008,
+  "slot": 3.3,
+  "pace": 0.95,
   "sr": 24000,
-  "text": "ˈɔfɚz kˈi dˈʊnɪjɑ. dˈɑːmɪnˌoʊz pˈiːtsə, fɔːɹ lˈɛs."
+  "voice": "sarvam bulbul:v3 shubh en-IN",
+  "text": "Offers Ki Duniya. Domino's pizza, for less."
  }
 }
