@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="../node_modules/@fontsource-variable/fraunces/full.css">
 <link rel="stylesheet" href="../node_modules/@fontsource-variable/fraunces/full-italic.css">
 <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/wght.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/anton/400.css">
 <link rel="stylesheet" href="../node_modules/@fontsource/jetbrains-mono/500.css">
 <link rel="stylesheet" href="../node_modules/@fontsource/jetbrains-mono/800.css">
 <link rel="stylesheet" href="styles.css">
@@ -22,13 +23,15 @@
 </svg>
 
 <div id="stage">
+ <div id="cam">
 
-  <!-- HOOK: a cheese pull, then the bill ------------------------------------ -->
+  <!-- HOOK: the cheese pull, type behind the slice, then the bill ------------ -->
   <section id="sHook">
-    <div class="plate" id="pullWrap"><img id="pull" alt=""></div>
+    <div class="plate"><img id="pull" alt=""></div>
     <div class="shade" id="hookShade"></div>
-    <div class="line big" id="kLove"><span>Love pizza?</span></div>
-    <div class="line big" id="kHate"><span>But hate</span><span><em>the bill?</em></span></div>
+    <div class="mega" id="kLove"><span>LOVE</span><span class="gold">PIZZA?</span></div>
+    <div class="plate fg"><img id="pullFg" alt=""></div>
+    <div class="mega" id="kHate"><span>BUT HATE</span><span class="red">THE BILL?</span></div>
     <div id="receipt">
       <div class="rc-in">
         <div class="rc-h">YOUR PIZZA BILL</div>
@@ -45,19 +48,21 @@
   <section id="sProblem">
     <div class="plate" id="heroWrap"><img id="hero" alt=""></div>
     <div class="shade top"></div>
-    <div class="line mid" id="kWhy">
-      <span>Why pay <i class="strike">full price<b id="strike"></b></i></span>
-      <span>for the <em>same</em> pizza?</span>
+    <div class="mega mid" id="kWhy">
+      <span>WHY PAY <i class="strike">FULL PRICE<b id="strike"></b></i></span>
+      <span>FOR THE <em>SAME</em> PIZZA?</span>
     </div>
   </section>
 
-  <!-- REVEAL ----------------------------------------------------------------- -->
+  <!-- REVEAL: the name, filled with the cheese pull -------------------------- -->
   <section id="sReveal">
     <div id="bring"><span>We bring to you…</span></div>
-    <div id="cream">
-      <div id="creamGlow"></div>
-      <div id="logoBox"><img id="logo" src="../brand/offers-ki-duniya-logo-stacked.svg" alt=""><i id="sheen"></i></div>
-      <div id="tag">Domino pizza, <em>for less.</em></div>
+    <div id="nameStage">
+      <div id="nameGlow"></div>
+      <div class="name" id="nameFill"><span>OFFERS</span><span>KI DUNIYA</span></div>
+      <div class="name" id="nameGold"><span>OFFERS</span><span>KI DUNIYA</span></div>
+      <div class="name" id="nameSheen"><span>OFFERS</span><span>KI DUNIYA</span></div>
+      <div id="tag">Domino's pizza, <em>for less.</em></div>
       <div id="url"><svg class="lk"><use href="#i-lock"/></svg><span>offerskiduniya.com</span></div>
     </div>
   </section>
@@ -65,17 +70,21 @@
   <!-- SITE: the real website, recorded on a phone ---------------------------- -->
   <section id="sSite">
     <div id="siteBg"><img id="siteBgImg" alt=""></div>
-    <div id="rig">
-      <div id="phone">
-        <i class="key k1"></i><i class="key k2"></i><i class="key k3"></i>
-        <div id="screen">
-          <img id="rec" alt="">
-          <div id="sbar"><b>7:30</b><i class="punch"></i><span class="sb-r"><i class="sig"></i><i class="wifi"></i><i class="bat"></i></span></div>
-          <div id="taps"></div>
-          <i id="glare"></i>
+    <canvas id="bokeh" width="1080" height="1920"></canvas>
+    <div id="tilt">
+      <div id="rig">
+        <div id="phone">
+          <i class="key k1"></i><i class="key k2"></i>
+          <div id="screen">
+            <img id="rec" alt="">
+            <div id="sbar"><b>7:30</b><i class="punch"></i><span class="sb-r"><i class="sig"></i><i class="wifi"></i><i class="bat"></i></span></div>
+            <div id="taps"></div>
+            <i id="glare"></i>
+          </div>
         </div>
       </div>
     </div>
+    <div id="pops"></div>
     <div id="capScrim"></div>
     <div id="caps"></div>
   </section>
@@ -85,22 +94,22 @@
     <div class="plate" id="topWrap"><img id="topImg" alt=""></div>
     <div class="shade lad"></div>
     <div id="ladHead">
-      <div class="lh-k">Up to</div>
-      <div class="lh-n">₹295<span> OFF</span></div>
+      <div class="lh-k">UP TO</div>
+      <div class="lh-n">₹295 <span>OFF</span></div>
       <div class="lh-s">Applied automatically · Free delivery</div>
     </div>
     <div id="ladRows"></div>
     <div id="ribbon"><span>The bigger the order, the bigger the saving</span></div>
   </section>
 
-  <!-- PROMISE ---------------------------------------------------------------- -->
+  <!-- PROMISE: type above the slow-motion pull ------------------------------- -->
   <section id="sPromise">
     <div class="plate" id="promWrap"><img id="promA" alt=""><img id="promB" alt=""></div>
     <div class="shade prom"></div>
     <div id="pls">
-      <div class="pl" id="pl1">Same pizza.</div>
-      <div class="pl" id="pl2">Delivered by <b>Domino.</b></div>
-      <div class="pl" id="pl3">At a <u>lower price.</u></div>
+      <div class="pl" id="pl1">SAME PIZZA.</div>
+      <div class="pl" id="pl2">DELIVERED BY <b>DOMINO'S.</b></div>
+      <div class="pl" id="pl3">AT A <u>LOWER PRICE.</u></div>
     </div>
   </section>
 
@@ -108,8 +117,8 @@
   <section id="sCta">
     <div id="ctaBg"></div>
     <div id="ctaPizza"><img id="ctaImg" alt=""></div>
-    <img id="ctaLogo" src="../brand/offers-ki-duniya-logo-stacked.svg" alt="">
-    <div id="ctaK">Order now on</div>
+    <div id="ctaName"><span>OFFERS</span><span>KI DUNIYA</span><i id="ctaSheen"></i></div>
+    <div id="ctaTag">Domino's pizza, <em>for less.</em></div>
     <div id="ctaUrl"><svg class="lk"><use href="#i-lock"/></svg>offerskiduniya.com</div>
     <div id="ctaBtn">ORDER NOW<svg><use href="#i-chev"/></svg></div>
     <div id="ctaChips">
@@ -117,13 +126,14 @@
       <span><svg><use href="#i-truck"/></svg>Free delivery</span>
       <span><svg><use href="#i-wa"/></svg>Order on WhatsApp</span>
     </div>
-    <div id="ctaFine">Offer depends on the item total; taxes extra. Menu and prices from your nearest Domino kitchen.</div>
+    <div id="ctaFine">Offer depends on the item total; taxes extra. Menu and prices from your nearest Domino's kitchen.</div>
   </section>
 
   <canvas id="steam" width="1080" height="1920"></canvas>
+ </div>
+  <canvas id="leak" width="540" height="960"></canvas>
   <canvas id="grain" width="1080" height="1920"></canvas>
   <div id="vignette"></div>
-  <div id="dip"></div>
 </div>
 
 <script type="module" src="main.js"></script>

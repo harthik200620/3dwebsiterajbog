@@ -1,8 +1,8 @@
 # Offers Ki Duniya: promo video
 
-A 43-second vertical (1080 × 1920, 30 fps) ad for **offerskiduniya.com**, the same Domino pizza at a lower price with the best offer applied automatically.
+A 43-second vertical (1080 × 1920, 30 fps) ad for **offerskiduniya.com**, the same Domino's pizza at a lower price with the best offer applied automatically.
 
-The final cut is `out/offers-ki-duniya-promo.mp4`: H.264 + AAC, 25.6 MB, -14.6 LUFS, -2 dBTP. `scripts/render.mjs` writes a CRF 16 master. The committed file is a two-pass 4.8 Mbps encode of that master (SSIM 0.993), which keeps it under upload limits:
+The final cut is `out/offers-ki-duniya-promo.mp4`: H.264 + AAC, 25.6 MB, -14.5 LUFS, -1.9 dBTP. `scripts/render.mjs` writes a CRF 16 master. The committed file is a two-pass 4.8 Mbps encode of that master (SSIM 0.992), which keeps it under upload limits:
 
 ```bash
 node scripts/render.mjs --parts 3 --out out/offers-ki-duniya-promo-master.mp4
@@ -10,25 +10,31 @@ for p in 1 2; do ffmpeg -y -i out/offers-ki-duniya-promo-master.mp4 -c:v libx264
   -pix_fmt yuv420p -profile:v high -level 4.2 -pass $p -c:a aac -b:a 192k -movflags +faststart out/offers-ki-duniya-promo.mp4; done
 ```
 
-Version 2 changes three things:
+What's in it:
 
-- **The food is photoreal.** Every pizza in the video is path-traced in Blender Cycles from a procedural model, with no illustrations. The model has melted cheese with blisters that brown on top and oil that pools in the creases, sliced olives and jalapeños with skin and flesh, curved capsicum dice, mushrooms and corn, and a pie that is pre-cut into eight slices like a delivered one. It is lit like a food shoot: a big soft source behind for the glisten, plus a real room's light from a CC0 HDRI. The opening is a 60-frame cheese pull whose strands thin as they stretch and glow in the backlight. Steam and film grain are added in the composition.
-- **The website is the real site.** The 10–24 s segment is the phone recording of offerskiduniya.com (`site/recording.mp4`), cut to 14 seconds. It shows the location sheet, the menu, Peppy Paneer customised and added, the price dropping to ₹492.60, Veg Extravaganza added, "Top offer unlocked — you save ₹295", and the Domino vs Yours bill. The recording sits in a phone with a cleaned status bar (the screen-record timer is covered). The camera pushes in on the numbers, and taps are marked where the finger went.
-- **The new logo** is in `brand/`. It is a pizza cut along the "/" of a % sign, with cheese stretching across the cut, set beside "Offers ki Duniya".
+- **Path-traced food.** Every pizza is rendered in Blender Cycles from a procedural model; nothing is illustrated (`food/`).
+  - Melted cheese blisters, browns on top and pools oil.
+  - The toppings sit sunk into the cheese: sliced olives, jalapeño slices with seeded centres, translucent onion petals, curved capsicum, mushroom slices and corn kernels.
+  - The pie is pre-cut into eight slices, like a delivered one.
+  - It is lit like a food shoot, with a CC0 HDRI for the room light.
+- **The opening cheese pull** is a 60-frame animation. The slice is lifted by its crust and flops under its own weight, more at the tip. Its strands are a mix of thick ropes, thin threads and flat ribbons: they thin as they stretch, sag under their weight, and some snap into hanging tails. As the slice rises, the focus racks from the pie onto it, the way a focus puller would follow it, so the slice stays sharp while the pie falls into soft focus. Every frame also renders an alpha matte of the slice, so the type can sit behind it ("LOVE PIZZA?"). The grade adds the warm bloom a real lens throws around bright highlights.
+- **The website is the real site.** The 10–24 s segment is the phone recording of offerskiduniya.com (`site/recording.mp4`), cut to 14 seconds. It plays in a phone that swings in 3D over drifting bokeh. The numbers lift off the screen as floating cards while the phone dims behind them: ₹492.60 (saving ₹195), YOU SAVE ₹195, "Top offer unlocked", YOU SAVE ₹295, and To Pay ₹1,282.05 → ₹1,032.05. Taps are marked where the finger went, and the screen-record timer is covered by a clean status bar.
+- **Type and edit.** Headlines are set in Anton. The name "OFFERS KI DUNIYA" is set as plain type, filled with the cheese pull before it turns gold; there is no logo in the video. Light leaks wash across the big cuts, the picture punches in on the hits, and the cuts land with a short zoom blur.
+- **Sound.** The voice is offline neural TTS. The music is synthesised: a 120 BPM groove with 808 sub-bass, layered claps and snares, hi-hat rolls into each cut, and a half-time trap feel under "Same pizza…". The sound effects are real-world ones: cheese sizzle, a receipt printing and phone taps.
 
-Everything else is still generated here. The voice is offline neural TTS. The music and sound design are synthesised in Python, with real-world sounds only: cheese sizzle, a receipt printing and phone taps. There is no stock footage, no sample library and no licensed track.
+There is no stock footage, no sample library and no licensed track. The logo files from round two are still in `brand/` but are not used in the video.
 
 ## The cut
 
 | Time | Scene | Voiceover | On screen |
 |---|---|---|---|
-| 0.0–3.3 | Hook | "Love pizza? But hate the bill?" | Cheese pull, backlit, with bokeh and steam. A receipt slides in with the real basket at Domino prices: Peppy Paneer ₹589 + Veg Extravaganza ₹609 + taxes ₹84.05 = ₹1,282.05 |
+| 0.0–3.3 | Hook | "Love pizza? But hate the bill?" | Cheese pull, backlit, with bokeh and steam. "LOVE PIZZA?" sits behind the rising slice. A receipt slides in with the real basket at Domino's prices: Peppy Paneer ₹589 + Veg Extravaganza ₹609 + taxes ₹84.05 = ₹1,282.05 |
 | 3.3–6.0 | Problem | "Why pay full price, for the same pizza?" | The whole pizza, low and close, with "full price" struck through |
-| 6.0–10.0 | Reveal | "We bring to you… Offers Ki Duniya!" | The new logo on cream, with "Domino pizza, for less." and offerskiduniya.com |
-| 10.0–24.0 | The real website | "Set your location, anywhere in India. The same Domino menu. Just add to cart… and watch the price drop. Live! The best offer applies automatically. No coupon code." | The phone recording, with captions and push-ins on ₹492.60 (saving ₹195), YOU SAVE ₹195, "Top offer unlocked", YOU SAVE ₹295 and the bill |
+| 6.0–10.0 | Reveal | "We bring to you… Offers Ki Duniya!" | "OFFERS KI DUNIYA", filled with the cheese pull and then turning gold, with "Domino's pizza, for less." and offerskiduniya.com |
+| 10.0–24.0 | The real website | "Set your location, anywhere in India. The same Domino's menu. Just add to cart… and watch the price drop. Live! The best offer applies automatically. No coupon code." | The phone recording in a 3D phone. Pop-out cards show ₹492.60 (saving ₹195), YOU SAVE ₹195, "Top offer unlocked", YOU SAVE ₹295 and To Pay |
 | 24.0–32.0 | Offer ladder | "Save up to ₹295, with free delivery! The bigger the order, the bigger the saving." | UP TO ₹295 OFF and the five tiers over the pizza turning slowly |
-| 32.0–36.0 | Promise | "Same pizza. Delivered by Domino. At a lower price." | Three lines over the end of the cheese pull in slow motion |
-| 36.0–43.0 | Call to action | "Order now on offerskiduniya.com! Offers Ki Duniya. Domino pizza, for less." | Logo, URL, ORDER NOW, "Up to ₹295 off · Free delivery · Order on WhatsApp" |
+| 32.0–36.0 | Promise | "Same pizza. Delivered by Domino's. At a lower price." | Three lines, each set to the same width, above the slice as the end of the cheese pull plays in slow motion |
+| 36.0–43.0 | Call to action | "Order now on offerskiduniya.com! Offers Ki Duniya. Domino's pizza, for less." | The name in gold, URL, ORDER NOW, "Up to ₹295 off · Free delivery · Order on WhatsApp", over the pizza turning |
 
 The ladder uses the tiers the live site applies (`Me` in its bundle). They are not the ₹399 / ₹499 / ₹999 thresholds from the first brief:
 
@@ -44,9 +50,9 @@ The ladder uses the tiers the live site applies (`Me` in its bundle). They are n
 
 - **₹295 vs the bill on screen.** In the recording, the bill's Domino column also shows delivery as "₹45 FREE". So the two To Pay totals are ₹1,282.05 and ₹1,032.05, which is ₹250 apart, while the card above says "You save ₹295". The ₹195 step has the same gap: ₹642.60 vs ₹492.60 is ₹150. Anyone who pauses on the bill will see it. Either charge the ₹45 in the Domino column (if Domino charges it for that order) or word the claim as "₹250 off + free delivery". The video uses your brief's wording.
 - **Thresholds.** The ladder shows ₹400 / ₹500 / ₹1,000, matching what the site does. Showing ₹399 would promise an offer that a ₹399 basket doesn't get. If you change the site to ₹399 / ₹499 / ₹999, change `tiers` in `timeline.json` and re-render.
-- **Prices are per kitchen.** The site prices the menu at the Domino kitchen nearest the address, so the numbers in the recording are IIT Kharagpur's (checked 22 Sept on the site). The video says so on screen ("Menu & prices from your nearest Domino kitchen") and never claims the same price everywhere.
-- **The pizza is a render.** It is styled after a Veg Extravaganza but carries no Domino branding, box or trade dress. Inside the recording, the menu photos are the ones your site loads from images.dominos.co.in, so they are Domino's own photographs.
-- **"Domino", not "Domino's"**, on screen and in the voice, the same as the site's `brand.js`.
+- **Prices are per kitchen.** The site prices the menu at the Domino kitchen nearest the address, so the numbers in the recording are IIT Kharagpur's (checked 22 Sept on the site). The video says so on screen ("Menu & prices from your nearest Domino's kitchen") and never claims the same price everywhere.
+- **The pizza is a render.** It is styled after a Veg Extravaganza but carries no Domino's branding, box or trade dress. Inside the recording, the menu photos are the ones your site loads from images.dominos.co.in, so they are Domino's own photographs.
+- **"Domino's" is used on screen and in the voice, at your request.** Your site's own `brand.js` deliberately writes "Domino" and never shows their logo, presumably to keep clear of the trademark. Naming them is generally fine when it describes what you deliver, but an ad does put the name in front of more eyes. If you plan to run paid ads, check with someone who knows Indian trademark law. Changing it back is a text edit in `src/index.html` and `src/main.js` plus three VO lines (`menu`, `deliv`, `tag` in `audio/vo.py`).
 
 ## Rebuild
 
