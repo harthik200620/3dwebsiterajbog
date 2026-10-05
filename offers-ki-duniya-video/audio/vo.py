@@ -22,14 +22,14 @@ LINES = [
     ("bring",    "We bring to you...", None, 0.95),
     ("brand",    None, BRAND + "!", 0.9),
     ("loc",      "Set your location, anywhere in India.", None, 1.12),
-    ("menu",     "The same Domino menu.", None, 1.05),
+    ("menu",     "The same Domino's menu.", None, 1.05),
     ("add",      "Just add to cart...", None, 1.05),
     ("drop",     "and watch the price drop. Live!", None, 1.05),
     ("auto",     "The best offer applies automatically. No coupon code.", None, 1.1),
     ("save",     "Save up to two hundred and ninety-five rupees, with free delivery!", None, 1.1),
     ("bigger",   "The bigger the order, the bigger the saving.", None, 1.05),
     ("same",     "Same pizza.", None, 1.0),
-    ("deliv",    "Delivered by Domino.", None, 1.0),
+    ("deliv",    "Delivered by Domino's.", None, 1.0),
     ("lower",    "At a lower price.", None, 1.0),
     ("cta",      None, None, 1.0),  # built below: "Order now on" + brand + "dot com"
     ("tag",      None, None, 0.95),  # built below: brand + "Domino pizza, for less."
@@ -48,7 +48,7 @@ def main():
         if lid == "cta":
             ph = k.tokenizer.phonemize("Order now on", "en-us") + " " + BRAND + " dˈɑt kˈɑm!"
         if lid == "tag":
-            ph = BRAND + ". " + k.tokenizer.phonemize("Domino pizza, for less.", "en-us")
+            ph = BRAND + ". " + k.tokenizer.phonemize("Domino's pizza, for less.", "en-us")
         if ph is not None:
             audio, sr = k.create(ph, voice=VOICE, speed=speed, is_phonemes=True)
         else:

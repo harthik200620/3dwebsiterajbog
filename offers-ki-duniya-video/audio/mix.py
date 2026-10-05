@@ -131,6 +131,20 @@ def snare(dec=17):
     return (tone + nz * 0.85) * 0.6
 
 
+def sub808(f, dur, level=1.0, glide_to=None):
+    """A long 808: a sine that drops into pitch, saturated so it reads on phone speakers,
+    optionally gliding to a second note over its last third."""
+    t = tt(dur)
+    f_t = f * (1 + 0.5 * np.exp(-t * 40))
+    if glide_to:
+        g = np.clip((t - dur * 0.66) / (dur * 0.3), 0, 1)
+        f_t = f_t * (1 - g) + glide_to * g
+    x = np.sin(2 * np.pi * np.cumsum(f_t) / SR)
+    x = np.tanh(x * 2.2) / np.tanh(2.2)
+    env = (1 - np.exp(-t * 400)) * np.exp(-t * 0.9) * np.clip((dur - t) / 0.05, 0, 1)
+    return hp(lp(x * env, 1800), 38) * level
+
+
 HATS = [hp(noise(int(SR * 0.09)), 7800, 4) * np.exp(-tt(0.09) * 62) for _ in range(6)]
 OHATS = [hp(noise(int(SR * 0.4)), 7200, 4) * np.exp(-tt(0.4) * 9.5) for _ in range(3)]
 
@@ -517,8 +531,22 @@ def build_music():
                     mus.add(OHATS[k % 3], b + k * S16, 0.2 * hat_level, 0.35)
                 else:
                     mus.add(HATS[(bi + k) % 6], b + k * S16, (0.16 if k % 2 else 0.24) * hat_level, 0.3)
-            # bass: off-beat eighths, octave pop on the last one
+            # 808 under each bar (an octave below the bass); in half-time it slides to the next root
             root = hz(ch["root"])
+            nxt = hz(CH[prog[(bi + 1) % len(prog)]]["root"])
+            if half:
+                mus.add(sub808(root, BAR - 0.02, 1.0, glide_to=nxt), b, 0.36)
+                for k in range(24):                                   # triplet hats: the trap feel
+                    if k % 3 == 2 and k % 6 != 5:
+                        continue
+                    mus.add(HATS[k % 6], b + k * BAR / 24, 0.13 + 0.06 * (k % 3 == 0), 0.25)
+            else:
+                mus.add(sub808(root, BEAT * 1.9, 0.9), b, 0.26)
+                mus.add(sub808(root, BEAT * 1.9, 0.8), b + 2 * BEAT, 0.2)
+            if not half:
+                mus.add(snare(19), b + BEAT, 0.32, 0.0)
+                mus.add(snare(19), b + 3 * BEAT, 0.32, 0.0)
+            # bass: off-beat eighths, octave pop on the last one
             if half:
                 mus.add(bass(root, BAR - 0.05, 0.9), b, 0.75)
             else:
@@ -575,6 +603,14 @@ def build_music():
     for b in (8.0, 24.0, 36.0):
         cr = hp(noise(int(SR * 1.6)), 4500) * np.exp(-tt(1.6) * 3)
         mus.add(np.stack([cr, np.roll(cr, 55)], 1), b, 0.16)
+
+    # hat rolls into the cuts: 1/32 notes, swelling
+    for t_end in (10.0, 24.0, 32.0, 36.0):
+        n = 16
+        for k in range(n):
+            mus.add(HATS[k % 6], t_end - 0.5 + k * 0.5 / n, 0.08 + 0.22 * (k / n) ** 1.5, 0.2 * (1 if k % 2 else -1))
+    for b in (8.0, 24.0, 36.0):
+        mus.add(sub808(hz("F1"), 1.6, 1.0), b, 0.36)
 
     # sidechain pump: everything ducks under the kick, the kick itself stays whole
     pump = 1 - 0.35 * side

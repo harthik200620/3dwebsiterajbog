@@ -247,7 +247,7 @@ def ring_mesh(name, r_out, r_in, thick, rng, ellip=0.1, segs=48, prof_n=14, beve
         a = k / prof_n * TAU
         x, y = math.cos(a), math.sin(a)
         prof.append((math.copysign(abs(x) ** (1 - bevel), x), math.copysign(abs(y) ** (1 - bevel), y)))
-    verts, skin = [], []
+    verts, skin, rad = [], [], []
     for s in range(segs):
         th = s / segs * TAU
         wob = 1 + e1 * math.cos(2 * (th - ph)) + 0.035 * n1(math.cos(th) * 1.4 + sd, sd)
@@ -260,6 +260,7 @@ def ring_mesh(name, r_out, r_in, thick, rng, ellip=0.1, segs=48, prof_n=14, beve
             z = (py + 1) / 2 * thick * (1 - 0.12 * n1(th * 2 + sd, sd + 1))
             verts.append((x, y, z))
             skin.append(min(1.0, max(0.0, (px - 0.6) / 0.35)))
+            rad.append(u)
     faces = []
     for s in range(segs):
         for k in range(prof_n):
@@ -272,8 +273,31 @@ def ring_mesh(name, r_out, r_in, thick, rng, ellip=0.1, segs=48, prof_n=14, beve
     me.from_pydata(verts, [], faces)
     a = me.attributes.new('skin', 'FLOAT', 'POINT')
     a.data.foreach_set('value', np.asarray(skin, dtype=np.float32))
+    a = me.attributes.new('rad', 'FLOAT', 'POINT')
+    a.data.foreach_set('value', np.asarray(rad, dtype=np.float32))
     me.shade_smooth()
     me.update()
+    return me
+
+
+def kernel_mesh(name, rng):
+    """A sweetcorn kernel: a rounded crown that tapers to a pointed base."""
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=14, ring_count=9, radius=1.0)
+    ob = bpy.context.object
+    me = ob.data
+    co = np.zeros(len(me.vertices) * 3)
+    me.vertices.foreach_get('co', co)
+    co = co.reshape(-1, 3)
+    z = co[:, 2].copy()
+    taper = np.where(z < 0, 1 - 0.6 * (-z) ** 1.4, 1.0)
+    co[:, 0] *= taper * 0.021 * rng.uniform(0.85, 1.15)
+    co[:, 1] *= taper * 0.017 * rng.uniform(0.85, 1.15)
+    co[:, 2] = np.where(z < 0, z * 0.019, z * 0.011)
+    me.vertices.foreach_set('co', co.ravel())
+    me.update()
+    me.shade_smooth()
+    me.name = name
+    bpy.data.objects.remove(ob)
     return me
 
 
@@ -304,7 +328,7 @@ def mushroom_mesh(name, size):
         a = math.pi * k / n
         pts.append((math.cos(a) * size * 0.5, math.sin(a) * size * 0.42 + size * 0.08))
     pts += [(-size * 0.13, size * 0.08), (-size * 0.1, -size * 0.3), (size * 0.11, -size * 0.31), (size * 0.14, size * 0.08)]
-    thick = size * 0.055
+    thick = size * 0.075
     verts = [(x, y, 0) for x, y in pts] + [(x, y, thick) for x, y in pts]
     m = len(pts)
     faces = [tuple(range(m))[::-1], tuple(range(m, 2 * m))]
@@ -560,6 +584,37 @@ def mat_simple(name, base, rough=0.3, sss=0.0, sss_rad=(1, 0.3, 0.2), coat=0.0, 
     return m
 
 
+def mat_jalapeno():
+    """A pickled jalapeno slice: pale seeded pith in the middle, olive flesh, a dark glossy skin."""
+    m, nt, b = node_mat('jalapeno')
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    rad = attr(nt, 'rad')
+    sk = attr(nt, 'skin')
+    flesh = ramp(nt, [(0.0, '#efe4b0'), (0.36, '#e2d38c'), (0.5, '#a9ad4f'), (1.0, '#7c8a34')])
+    nt.links.new(rad.outputs['Fac'], flesh.inputs['Fac'])
+    col = mix_rgb(nt, fac=sk.outputs['Fac'], a=flesh.outputs['Color'], b_col='#2a4815')
+    nt.links.new(col, b.inputs['Base Color'])
+    mr = nt.nodes.new('ShaderNodeMapRange')
+    nt.links.new(sk.outputs['Fac'], mr.inputs['Value'])
+    mr.inputs['To Min'].default_value = 0.34
+    mr.inputs['To Max'].default_value = 0.12
+    nt.links.new(mr.outputs['Result'], b.inputs['Roughness'])
+    b.inputs['Subsurface Weight'].default_value = 0.45
+    b.inputs['Subsurface Radius'].default_value = (0.7, 1.0, 0.4)
+    b.inputs['Subsurface Scale'].default_value = 0.01
+    b.inputs['Coat Weight'].default_value = 0.5
+    b.inputs['Coat Roughness'].default_value = 0.05
+    # seeds: small bumps where the pith is
+    vor = nt.nodes.new('ShaderNodeTexVoronoi')
+    vor.inputs['Scale'].default_value = 160.0
+    nt.links.new(tc.outputs['Object'], vor.inputs['Vector'])
+    inv = math_node(nt, 'SUBTRACT', None, rad.outputs['Fac'], 0.5, 0, clamp=True)
+    h = math_node(nt, 'MULTIPLY', vor.outputs['Distance'], inv.outputs[0])
+    bp = bump(nt, h.outputs[0], 0.5, 0.004)
+    nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+
 def mat_sauce():
     return mat_simple('sauce', '#a8240f', rough=0.28, sss=0.35, sss_rad=(1, 0.2, 0.1), coat=0.3)
 
@@ -713,7 +768,7 @@ class Pizza:
         th = 0.022 * (1 - np.exp(-np.maximum(e, 0) / 0.02))
         big, small, amp, crease = self.melt(X, Y)
         z = top + th + 0.0035 * vnoise(X * 4, Y * 4, self.seed + 9, 3)
-        z = z + (0.02 * big + 0.006 * small) * np.clip(e / 0.04, 0, 1)
+        z = z + (0.015 * big + 0.005 * small + 0.004 * vnoise(X * 9 + 3, Y * 9, self.seed + 77, 3)) * np.clip(e / 0.04, 0, 1)
         for mx, my, mr, mh in getattr(self, 'mounds', []):
             d = np.hypot(X - mx, Y - my)
             z = np.maximum(z, np.where(d < mr, mh * np.clip(1 - (d / mr) ** 2, 0, 1) ** 1.3 + top, z))
@@ -733,8 +788,8 @@ class Pizza:
             d = np.hypot(X - bx, Y - by)
             v = np.maximum(v, np.where(d < br * 0.8, (bh / 0.026) * np.clip(1 - d / (br * 0.8), 0, 1) ** 1.4, 0.0))
         big, small, amp, crease = self.melt(X, Y)
-        gate = np.clip((vnoise(X * 2.6 + 40, Y * 2.6, self.seed + 50, 2) + 0.6) / 0.5, 0, 1)
-        v = np.maximum(v, 1.15 * amp ** 1.1 * crease ** 1.8 * gate)
+        gate = np.clip((vnoise(X * 2.6 + 40, Y * 2.6, self.seed + 50, 2) + 0.7) / 0.5, 0, 1)
+        v = np.maximum(v, 1.2 * amp ** 1.0 * crease ** 1.6 * gate)
         v = np.maximum(v, 0.6 * np.exp(-np.maximum(0, self._edge(X, Y)) / 0.03))
         v = v + 0.12 * np.clip(vnoise(X * 14, Y * 14, self.seed + 21, 3), 0, 1)
         return np.clip(v, 0, 1)
@@ -744,7 +799,7 @@ class Pizza:
         Y = np.asarray(Y, dtype=np.float64)
         big, small, amp, crease = self.melt(X, Y)
         pool = np.clip((vnoise(X * 2.2 + 70, Y * 2.2, self.seed + 60, 2) - 0.25) / 0.3, 0, 1)
-        oil = 0.55 * (1 - crease) ** 4 * (0.25 + 0.75 * amp) + 0.45 * pool ** 1.5
+        oil = 0.3 * (1 - crease) ** 5 * (0.25 + 0.75 * amp) + 0.5 * pool ** 1.5
         return np.clip(oil, 0, 1)
 
     def build(self, part='pie'):
@@ -799,16 +854,16 @@ class Pizza:
             return self.mats[k]
         f = {
             'cheese': mat_cheese, 'crust': mat_crust, 'sauce': mat_sauce,
-            'capsicum': lambda: mat_simple('capsicum', '#a9bd6a', 0.36, 0.45, (0.5, 1, 0.3), 0.5, skin='#20491a', skin_rough=0.14, char=0.7, bump_s=0.25),
-            'paprika': lambda: mat_simple('paprika', '#b8321f', 0.3, 0.45, (1, 0.3, 0.2), 0.55, skin='#7d1208', skin_rough=0.12, char=0.7, bump_s=0.2),
-            'onion': lambda: mat_simple('onion', '#eadbd9', 0.22, 0.75, (1, 0.85, 0.9), 0.5, skin='#7d2560', transmission=0.18, skin_rough=0.16, char=0.5),
-            'olive': lambda: mat_simple('olive', '#1e1615', 0.45, 0.15, (1, 0.5, 0.5), 0.3, skin='#0a0708', skin_rough=0.14, spec=0.5),
-            'corn': lambda: mat_simple('corn', '#f2bd2a', 0.22, 0.6, (1, 0.8, 0.2), 0.55, char=0.3),
-            'tomato': lambda: mat_simple('tomato', '#b8301c', 0.24, 0.6, (1, 0.25, 0.15), 0.5, skin='#8f170c', skin_rough=0.12, char=0.6, bump_s=0.2),
-            'mushroom': lambda: mat_simple('mushroom', '#8f7350', 0.45, 0.3, (1, 0.85, 0.65), 0.3, skin='#4a2e19', skin_rough=0.5, char=0.6, bump_s=0.2),
+            'capsicum': lambda: mat_simple('capsicum', '#a7bb62', 0.34, 0.45, (0.5, 1, 0.3), 0.6, skin='#1d4a13', skin_rough=0.1, char=0.85, bump_s=0.3),
+            'paprika': lambda: mat_simple('paprika', '#b8321f', 0.3, 0.45, (1, 0.3, 0.2), 0.6, skin='#7d1208', skin_rough=0.1, char=0.8, bump_s=0.25),
+            'onion': lambda: mat_simple('onion', '#efe2e8', 0.16, 0.85, (1, 0.8, 0.9), 0.55, skin='#93306f', transmission=0.3, skin_rough=0.14, char=0.45),
+            'olive': lambda: mat_simple('olive', '#1e1615', 0.42, 0.15, (1, 0.5, 0.5), 0.35, skin='#0a0708', skin_rough=0.12, spec=0.5, bump_s=0.15),
+            'corn': lambda: mat_simple('corn', '#f6c12c', 0.14, 0.65, (1, 0.75, 0.2), 0.6, char=0.35),
+            'tomato': lambda: mat_simple('tomato', '#b8301c', 0.2, 0.6, (1, 0.25, 0.15), 0.55, skin='#8f170c', skin_rough=0.1, char=0.7, bump_s=0.25),
+            'mushroom': lambda: mat_simple('mushroom', '#cbb08a', 0.4, 0.35, (1, 0.85, 0.65), 0.35, skin='#6a4729', skin_rough=0.45, char=0.7, bump_s=0.4),
             'paneer': lambda: mat_simple('paneer', '#f4ecdc', 0.5, 0.7, (1, 0.95, 0.85), 0.15, skin='#c97a30', char=0.5),
-            'jalapeno': lambda: mat_simple('jalapeno', '#7d8a3c', 0.32, 0.45, (0.7, 1, 0.4), 0.45, skin='#22380f', skin_rough=0.12, char=0.5),
-            'herb': lambda: mat_simple('herb', '#3c4a1c', 0.6),
+            'jalapeno': mat_jalapeno,
+            'herb': lambda: mat_simple('herb', '#2f3b14', 0.6),
         }[k]
         self.mats[k] = f()
         return self.mats[k]
@@ -821,14 +876,14 @@ class Pizza:
             'capsicum': [pepper_piece(f'capd{i}', r.uniform(0.06, 0.095), r.uniform(0.045, 0.075), 0.019, r, bend=r.uniform(0.3, 0.6)) for i in range(6)]
                         + [jitter_mesh(sweep_arc(f'caps{i}', r.uniform(0.2, 0.3), 0.036, 0.024, r.uniform(0.45, 0.7)), r, 0.006) for i in range(2)],
             'paprika': [jitter_mesh(sweep_arc(f'pap{i}', r.uniform(0.12, 0.2), r.uniform(0.022, 0.03), 0.013, r.uniform(0.5, 0.8), bevel=0.25), r, 0.005) for i in range(4)],
-            'onion': [chunk_mesh(f'oni{i}', r.uniform(0.1, 0.15), r.uniform(0.035, 0.05), 0.016, r, round_=0.4) for i in range(4)]
-                     + [jitter_mesh(sweep_arc(f'onis{i}', r.uniform(0.17, 0.25), 0.02, 0.014, r.uniform(0.6, 1.0), bevel=0.2), r, 0.005) for i in range(2)],
+            'onion': [jitter_mesh(sweep_arc(f'onis{i}', r.uniform(0.07, 0.16), r.uniform(0.018, 0.028), 0.009, r.uniform(0.7, 1.4), bevel=0.15), r, 0.004) for i in range(6)]
+                     + [chunk_mesh(f'oni{i}', r.uniform(0.07, 0.1), r.uniform(0.03, 0.04), 0.01, r, round_=0.45) for i in range(2)],
             'olive': [ring_mesh(f'olive{i}', r.uniform(0.06, 0.07), r.uniform(0.024, 0.03), 0.022, r) for i in range(4)],
-            'corn': [jitter_mesh(rounded_box(f'corn{i}', 0.042, 0.036, 0.03, 0.5), r, 0.005) for i in range(3)],
+            'corn': [kernel_mesh(f'corn{i}', r) for i in range(5)],
             'tomato': [chunk_mesh(f'tom{i}', r.uniform(0.07, 0.095), r.uniform(0.06, 0.08), 0.022, r, 'top', round_=0.45) for i in range(4)],
             'mushroom': [jitter_mesh(mushroom_mesh(f'mush{i}', r.uniform(0.16, 0.21)), r, 0.018) for i in range(4)],
             'paneer': [jitter_mesh(rounded_box(f'pan{i}', 0.11, 0.1, 0.075, 0.3), r, 0.009) for i in range(4)],
-            'jalapeno': [ring_mesh(f'jal{i}', r.uniform(0.065, 0.078), r.uniform(0.03, 0.038), 0.02, r, ellip=0.06) for i in range(3)],
+            'jalapeno': [ring_mesh(f'jal{i}', r.uniform(0.062, 0.075), r.uniform(0.006, 0.012), 0.016, r, ellip=0.07) for i in range(3)],
         }
         # paneer: toasted top edges ('skin' by height)
         for me in tm['paneer']:
@@ -850,7 +905,7 @@ class Pizza:
         plan = []
         if recipe:
             pts = []
-            min_d = 0.118
+            min_d = 0.102
             tries = 0
             while tries < 9000:
                 tries += 1
@@ -868,14 +923,14 @@ class Pizza:
                     if k <= 0:
                         kind = name
                         break
-                reps = 3 if kind == 'corn' else 1
+                reps = 4 if kind == 'corn' else 1
                 for j in range(reps):
                     ox, oy = (r.uniform(-0.05, 0.05), r.uniform(-0.05, 0.05)) if reps > 1 else (0, 0)
                     me = r.choice(tm[kind])
                     px, py = x + ox, y + oy
                     z = float(self.cheese_h(np.array([px]), np.array([py]))[0])
-                    sink = {'olive': 0.3, 'paneer': 0.3, 'corn': 0.35, 'tomato': 0.3, 'jalapeno': 0.3, 'mushroom': 0.3,
-                            'capsicum': 0.35, 'paprika': 0.35, 'onion': 0.35}.get(kind, 0.3)
+                    sink = {'olive': 0.45, 'paneer': 0.35, 'corn': 0.45, 'tomato': 0.45, 'jalapeno': 0.45, 'mushroom': 0.45,
+                            'capsicum': 0.5, 'paprika': 0.5, 'onion': 0.55}.get(kind, 0.45)
                     zs = [v.co.z for v in me.vertices]
                     zmin, zmax = min(zs), max(zs)
                     height = zmax - zmin
@@ -883,15 +938,16 @@ class Pizza:
                             'tomato': 0.07, 'mushroom': 0.11, 'paneer': 0.085, 'jalapeno': 0.085}.get(kind, 0.06)
                     # a third of the pepper pieces land skin-down, showing the paler flesh
                     flip = kind in ('capsicum', 'paprika') and r.random() < 0.3
-                    rot = (r.uniform(-0.12, 0.12) + (math.pi if flip else 0), r.uniform(-0.12, 0.12), r.uniform(0, TAU))
+                    tip = 0.6 if kind == 'corn' else 0.12          # kernels land every which way
+                    rot = (r.uniform(-tip, tip) + (math.pi if flip else 0), r.uniform(-tip, tip), r.uniform(0, TAU))
                     sc = r.uniform(0.85, 1.15)
                     scale = (sc * r.uniform(0.85, 1.15), sc * r.uniform(0.85, 1.15), sc * r.uniform(0.8, 1.1))
                     bottom = -zmax if flip else zmin
                     plan.append((kind, me, px, py, z - height * sink - bottom * scale[2], rot, scale))
-                    self.mounds.append((px, py, foot * 1.1, (z - self.base - 0.006) + height * r.uniform(0.1, 0.3)))
+                    self.mounds.append((px, py, foot * 1.25, (z - self.base - 0.006) + height * r.uniform(0.3, 0.5)))
         herbs = []
-        for _ in range(220):
-            rr = math.sqrt(r.random()) * 0.8
+        for _ in range(320):
+            rr = math.sqrt(r.random()) * 0.82
             tt = r.random() * TAU
             herbs.append((rr * math.cos(tt), rr * math.sin(tt), (r.uniform(-0.3, 0.3), r.uniform(-0.3, 0.3), r.uniform(0, TAU)),
                           r.uniform(0.5, 1.4), r.uniform(0.4, 1.0)))
